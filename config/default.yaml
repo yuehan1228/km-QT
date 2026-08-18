@@ -1,0 +1,25 @@
+# ShipLoader Monitor 默认配置文件
+window:
+  width: 1280
+  height: 800
+  pos_x: 100
+  pos_y: 100
+
+data:
+  history_max_size: 1000
+  refresh_interval_ms: 200
+  export_path: ""
+
+# 订阅的 topic 开关
+topics:
+  /plc_status: true
+  /shiploader_pos: true
+  /heartbeat: true
+  /workflow_status: true
+  /ship_loader_speed: true
+  /ship_loader_target_pos: true
+  /hatch_position: true
+  /ship_model_point_cloud: true
+  /material_point_cloud: true
+  /filtered_cloud: true
+  /merged_points: true

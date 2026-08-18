@@ -1,0 +1,7 @@
+log/
+share/
+.claude/
+.codegraph/
+.vscode/
+build/
+install/
