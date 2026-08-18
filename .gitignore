@@ -6,3 +6,5 @@ share/
 build/
 install/
 .omo/
+docs/
+*.user
