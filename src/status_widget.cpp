@@ -108,9 +108,58 @@ void StatusWidget::setupUI()
     g->setContentsMargins(12, 16, 12, 12);
 
     lbl_wf_scan_ = mk("扫描: 停止"); lbl_wf_switch_ = mk("移舱: 停止");
-    lbl_wf_load_ = mk("装船: 停止"); lbl_wf_error_ = mk("错误: 0");
+    lbl_wf_load_ = mk("装船: 停止"); lbl_wf_zero_ = mk("归零: 停止");
+    lbl_wf_error_ = mk("错误: 0");
     g->addWidget(lbl_wf_scan_, 0, 0); g->addWidget(lbl_wf_switch_, 0, 1);
-    g->addWidget(lbl_wf_load_, 1, 0); g->addWidget(lbl_wf_error_, 1, 1);
+    g->addWidget(lbl_wf_load_, 1, 0); g->addWidget(lbl_wf_zero_, 1, 1);
+    g->addWidget(lbl_wf_error_, 2, 0, 1, 2);
+    main->addWidget(gb);
+  }
+
+  // =================================================================
+  //  机构使能 / 安全状态
+  // =================================================================
+  {
+    QGroupBox* gb = new QGroupBox("机构使能 / 安全状态");
+    QHBoxLayout* columns = new QHBoxLayout(gb);
+    columns->setSpacing(18);
+    columns->setContentsMargins(12, 16, 12, 12);
+
+    auto* enableGroup = new QGroupBox("机构使能");
+    auto* enableLayout = new QVBoxLayout(enableGroup);
+    enableLayout->setSpacing(8);
+    lbl_enable_gantry_ = mk("大车使能: 关");
+    lbl_enable_slewing_ = mk("回转使能: 关");
+    lbl_enable_luffing_ = mk("俯仰使能: 关");
+    lbl_enable_stretch_ = mk("伸缩使能: 关");
+    enableLayout->addWidget(lbl_enable_gantry_);
+    enableLayout->addWidget(lbl_enable_slewing_);
+    enableLayout->addWidget(lbl_enable_luffing_);
+    enableLayout->addWidget(lbl_enable_stretch_);
+
+    auto* safetyGroup = new QGroupBox("安全状态");
+    auto* safetyLayout = new QGridLayout(safetyGroup);
+    safetyLayout->setSpacing(8);
+    lbl_safety_walking_slow_ = mk("走行减速: 正常");
+    lbl_safety_slewing_slow_ = mk("回转减速: 正常");
+    lbl_safety_luffing_slow_ = mk("俯仰减速: 正常");
+    lbl_safety_stretch_slow_ = mk("伸缩减速: 正常");
+    lbl_safety_walking_stop_ = mk("走行停止: 正常");
+    lbl_safety_slewing_stop_ = mk("回转停止: 正常");
+    lbl_safety_luffing_stop_ = mk("俯仰停止: 正常");
+    lbl_safety_stretch_stop_ = mk("伸缩停止: 正常");
+    QLabel* safetyLabels[] = {
+      lbl_safety_walking_slow_, lbl_safety_slewing_slow_,
+      lbl_safety_luffing_slow_, lbl_safety_stretch_slow_,
+      lbl_safety_walking_stop_, lbl_safety_slewing_stop_,
+      lbl_safety_luffing_stop_, lbl_safety_stretch_stop_
+    };
+    for (int i = 0; i < 8; ++i) {
+      safetyLayout->addWidget(safetyLabels[i], i / 2, i % 2);
+    }
+
+    columns->addWidget(enableGroup);
+    columns->addWidget(safetyGroup, 1);
     main->addWidget(gb);
   }
 
@@ -157,7 +206,46 @@ void StatusWidget::updateWorkflowStatus(const km_custom_msgs::msg::WorkFlowStatu
   lbl_wf_scan_->setText(QString("扫描: %1").arg(statusToString(msg->ship_scan_status)));
   lbl_wf_switch_->setText(QString("移舱: %1").arg(statusToString(msg->hatch_switch_status)));
   lbl_wf_load_->setText(QString("装船: %1").arg(statusToString(msg->ship_load_status)));
+  lbl_wf_zero_->setText(QString("归零: %1").arg(statusToString(msg->device_to_zero_status)));
   lbl_wf_error_->setText(QString("错误: %1").arg(msg->error_status));
+}
+
+void StatusWidget::updateDeviceEnable(
+  const km_custom_msgs::msg::DeviceEnable::SharedPtr& msg)
+{
+  if (!msg) return;
+
+  const auto setEnable = [](QLabel* label, const QString& name, bool enabled) {
+    label->setText(QString("%1: %2").arg(name).arg(enabled ? "开" : "关"));
+    label->setStyleSheet(enabled
+      ? "color: #1976D2; font-weight: bold;"
+      : "color: gray;");
+  };
+  setEnable(lbl_enable_gantry_, "大车使能", msg->gantry_enable);
+  setEnable(lbl_enable_slewing_, "回转使能", msg->slewing_enable);
+  setEnable(lbl_enable_luffing_, "俯仰使能", msg->luffing_enable);
+  setEnable(lbl_enable_stretch_, "伸缩使能", msg->stretch_enable);
+}
+
+void StatusWidget::updateDeviceSafetyStatus(
+  const km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr& msg)
+{
+  if (!msg) return;
+
+  const auto setSafety = [](QLabel* label, const QString& name, bool triggered) {
+    label->setText(QString("%1: %2").arg(name).arg(triggered ? "触发" : "正常"));
+    label->setStyleSheet(triggered
+      ? "color: red; font-weight: bold;"
+      : "color: green;");
+  };
+  setSafety(lbl_safety_walking_slow_, "走行减速", msg->walking_slow);
+  setSafety(lbl_safety_slewing_slow_, "回转减速", msg->slewing_slow);
+  setSafety(lbl_safety_luffing_slow_, "俯仰减速", msg->luffing_slow);
+  setSafety(lbl_safety_stretch_slow_, "伸缩减速", msg->stretch_slow);
+  setSafety(lbl_safety_walking_stop_, "走行停止", msg->walking_stop);
+  setSafety(lbl_safety_slewing_stop_, "回转停止", msg->slewing_stop);
+  setSafety(lbl_safety_luffing_stop_, "俯仰停止", msg->luffing_stop);
+  setSafety(lbl_safety_stretch_stop_, "伸缩停止", msg->stretch_stop);
 }
 
 void StatusWidget::clear() {
@@ -170,7 +258,20 @@ void StatusWidget::clear() {
   lbl_chute_pos_x_->setText("X: ---"); lbl_chute_pos_y_->setText("Y: ---"); lbl_chute_pos_z_->setText("Z: ---");
   lbl_rot_center_x_->setText("X: ---"); lbl_rot_center_y_->setText("Y: ---"); lbl_rot_center_z_->setText("Z: ---");
   lbl_wf_scan_->setText("扫描: 停止"); lbl_wf_switch_->setText("移舱: 停止");
-  lbl_wf_load_->setText("装船: 停止"); lbl_wf_error_->setText("错误: 0");
+  lbl_wf_load_->setText("装船: 停止"); lbl_wf_zero_->setText("归零: 停止");
+  lbl_wf_error_->setText("错误: 0");
+  lbl_enable_gantry_->setText("大车使能: 关");
+  lbl_enable_slewing_->setText("回转使能: 关");
+  lbl_enable_luffing_->setText("俯仰使能: 关");
+  lbl_enable_stretch_->setText("伸缩使能: 关");
+  lbl_safety_walking_slow_->setText("走行减速: 正常");
+  lbl_safety_slewing_slow_->setText("回转减速: 正常");
+  lbl_safety_luffing_slow_->setText("俯仰减速: 正常");
+  lbl_safety_stretch_slow_->setText("伸缩减速: 正常");
+  lbl_safety_walking_stop_->setText("走行停止: 正常");
+  lbl_safety_slewing_stop_->setText("回转停止: 正常");
+  lbl_safety_luffing_stop_->setText("俯仰停止: 正常");
+  lbl_safety_stretch_stop_->setText("伸缩停止: 正常");
 }
 
 } // namespace shiploader_monitor

@@ -74,6 +74,14 @@ void RosNode::spinLoop(std::function<void(rclcpp::Node::SharedPtr)> init_cb)
     "/status_code", 10,
     [this](const km_custom_msgs::msg::StatusCode::SharedPtr msg) { emit statusCodeReceived(msg); });
 
+  auto device_enable_sub = node->create_subscription<km_custom_msgs::msg::DeviceEnable>(
+    "/device_enable", 10,
+    [this](const km_custom_msgs::msg::DeviceEnable::SharedPtr msg) { emit deviceEnableReceived(msg); });
+
+  auto device_safety_status_sub = node->create_subscription<km_custom_msgs::msg::DeviceSafetyStatus>(
+    "/device_safety_status", 10,
+    [this](const km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr msg) { emit deviceSafetyStatusReceived(msg); });
+
   auto ship_model_sub = node->create_subscription<sensor_msgs::msg::PointCloud2>(
     "/ship_model_point_cloud", 1,
     [this](const sensor_msgs::msg::PointCloud2::SharedPtr msg) {

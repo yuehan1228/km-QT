@@ -65,6 +65,12 @@ void MainWindow::init()
   QObject::connect(ros_node_.get(), &RosNode::statusCodeReceived,
                    heartbeat_widget_, &HeartbeatWidget::updateStatusCode,
                    Qt::QueuedConnection);
+  QObject::connect(ros_node_.get(), &RosNode::deviceEnableReceived,
+                   data_store_.get(), &DataStore::updateDeviceEnable,
+                   Qt::QueuedConnection);
+  QObject::connect(ros_node_.get(), &RosNode::deviceSafetyStatusReceived,
+                   data_store_.get(), &DataStore::updateDeviceSafetyStatus,
+                   Qt::QueuedConnection);
 
   // 注册点云话题并连接信号
   point_cloud_widget_->registerTopic("/ship_model_point_cloud", QVector3D(1.0f, 1.0f, 1.0f));
@@ -280,6 +286,8 @@ void MainWindow::setupUI()
     onDataUpdated("/workflow_status");
     onDataUpdated("/ship_loader_speed");
     onDataUpdated("/ship_loader_target_pos");
+    onDataUpdated("/device_enable");
+    onDataUpdated("/device_safety_status");
     onHistoryChanged();
   });
   refresh_timer_->start();
@@ -316,6 +324,10 @@ void MainWindow::onDataUpdated(const QString& topic)
     status_widget_->updateSpeed(data_store_->latestShipLoaderSpeed());
   } else if (topic == "/ship_loader_target_pos") {
     status_widget_->updateTargetPose(data_store_->latestTargetPose());
+  } else if (topic == "/device_enable") {
+    status_widget_->updateDeviceEnable(data_store_->latestDeviceEnable());
+  } else if (topic == "/device_safety_status") {
+    status_widget_->updateDeviceSafetyStatus(data_store_->latestDeviceSafetyStatus());
   }
 }
 

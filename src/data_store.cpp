@@ -137,6 +137,35 @@ void DataStore::updateHatchPosition(const km_custom_msgs::msg::HatchPosition::Sh
   emit dataUpdated("/hatch_position");
 }
 
+void DataStore::updateDeviceEnable(const km_custom_msgs::msg::DeviceEnable::SharedPtr& msg)
+{
+  {
+    QMutexLocker lock(&device_enable_mutex_);
+    latest_device_enable_ = std::make_shared<km_custom_msgs::msg::DeviceEnable>(*msg);
+  }
+  {
+    QMutexLocker lock(&update_time_mutex_);
+    last_update_times_["/device_enable"] = QDateTime::currentDateTime();
+  }
+  addHistoryEntry("/device_enable", "Device enable status updated");
+  emit dataUpdated("/device_enable");
+}
+
+void DataStore::updateDeviceSafetyStatus(
+  const km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr& msg)
+{
+  {
+    QMutexLocker lock(&device_safety_status_mutex_);
+    latest_device_safety_status_ = std::make_shared<km_custom_msgs::msg::DeviceSafetyStatus>(*msg);
+  }
+  {
+    QMutexLocker lock(&update_time_mutex_);
+    last_update_times_["/device_safety_status"] = QDateTime::currentDateTime();
+  }
+  addHistoryEntry("/device_safety_status", "Device safety status updated");
+  emit dataUpdated("/device_safety_status");
+}
+
 // ── 最新数据访问 ─────────────────────────────────────────────────────
 
 km_custom_msgs::msg::PlcStatus::SharedPtr DataStore::latestPlcStatus() const
@@ -179,6 +208,18 @@ km_custom_msgs::msg::HatchPosition::SharedPtr DataStore::latestHatchPosition() c
 {
   QMutexLocker lock(&hatch_mutex_);
   return latest_hatch_position_;
+}
+
+km_custom_msgs::msg::DeviceEnable::SharedPtr DataStore::latestDeviceEnable() const
+{
+  QMutexLocker lock(&device_enable_mutex_);
+  return latest_device_enable_;
+}
+
+km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr DataStore::latestDeviceSafetyStatus() const
+{
+  QMutexLocker lock(&device_safety_status_mutex_);
+  return latest_device_safety_status_;
 }
 
 QDateTime DataStore::lastUpdateTime(const QString& topic) const

@@ -14,6 +14,8 @@
 #include <km_custom_msgs/msg/ship_loader_target_pose.hpp>
 #include <km_custom_msgs/msg/hatch_position.hpp>
 #include <km_custom_msgs/msg/status_code.hpp>
+#include <km_custom_msgs/msg/device_enable.hpp>
+#include <km_custom_msgs/msg/device_safety_status.hpp>
 #include <thread>
 #include <atomic>
 #include <memory>
@@ -49,6 +51,8 @@ signals:
   void targetPoseReceived(const km_custom_msgs::msg::ShipLoaderTargetPose::SharedPtr& msg);
   void hatchPositionReceived(const km_custom_msgs::msg::HatchPosition::SharedPtr& msg);
   void statusCodeReceived(const km_custom_msgs::msg::StatusCode::SharedPtr& msg);
+  void deviceEnableReceived(const km_custom_msgs::msg::DeviceEnable::SharedPtr& msg);
+  void deviceSafetyStatusReceived(const km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr& msg);
   void pointCloudReceived(const QString& topic, const sensor_msgs::msg::PointCloud2::SharedPtr& msg);
   void markerArrayReceived(const QString& topic, const visualization_msgs::msg::MarkerArray::SharedPtr& msg);
   void markerReceived(const QString& topic, const visualization_msgs::msg::Marker::SharedPtr& msg);

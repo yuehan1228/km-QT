@@ -62,15 +62,17 @@ void PlcStatusWidget::setupUI()
   lbl_ship_scanning_       = makeStatusIndicator("整船扫描");
   lbl_hatch_switch_        = makeStatusIndicator("移舱流程");
   lbl_ship_loading_        = makeStatusIndicator("舱内作业");
-  lbl_ship_loading_stop_   = makeStatusIndicator("作业结束");
+  lbl_ship_loading_stop_   = makeStatusIndicator("作业暂停");
+  lbl_device_to_zero_      = makeStatusIndicator("机构归零");
 
   QLabel* statusLabels[] = {
     lbl_machine_ready_, lbl_machine_broken_, lbl_emergency_stop_, lbl_lidar_power_,
     lbl_gantry_in_position_, lbl_slewing_in_position_,
     lbl_luffing_in_position_, lbl_stretch_in_position_,
-    lbl_ship_scanning_, lbl_hatch_switch_, lbl_ship_loading_, lbl_ship_loading_stop_
+    lbl_ship_scanning_, lbl_hatch_switch_, lbl_ship_loading_, lbl_ship_loading_stop_,
+    lbl_device_to_zero_
   };
-  for (int i = 0; i < 12; ++i) {
+  for (int i = 0; i < 13; ++i) {
     statusGrid->addWidget(statusLabels[i], i / 4, i % 4);
   }
   mainLayout->addWidget(statusGroup);
@@ -132,12 +134,18 @@ void PlcStatusWidget::setupUI()
   lbl_task_instruction_ = new QLabel("任务指令: 暂无");
   lbl_ship_size_        = new QLabel("船舶长/宽: 暂无");
   lbl_hatch_info_       = new QLabel("舱口数量/舱盖类型: 暂无");
+  lbl_hatch_work_plan_  = new QLabel("舱口作业计划: 暂无");
+  lbl_hatch_work_tech_  = new QLabel("舱口作业工艺: 暂无");
+  lbl_hatch_work_order_ = new QLabel("舱口作业顺序: 暂无");
   lbl_load_direction_   = new QLabel("装舱方向: 暂无");
   taskGrid->addWidget(lbl_task_, 0, 0);
   taskGrid->addWidget(lbl_task_instruction_, 0, 1);
   taskGrid->addWidget(lbl_ship_size_, 1, 0);
   taskGrid->addWidget(lbl_hatch_info_, 1, 1);
-  taskGrid->addWidget(lbl_load_direction_, 2, 0);
+  taskGrid->addWidget(lbl_hatch_work_plan_, 2, 0);
+  taskGrid->addWidget(lbl_hatch_work_tech_, 2, 1);
+  taskGrid->addWidget(lbl_hatch_work_order_, 3, 0);
+  taskGrid->addWidget(lbl_load_direction_, 3, 1);
   mainLayout->addWidget(taskGroup);
 
   mainLayout->addStretch();
@@ -161,6 +169,7 @@ void PlcStatusWidget::updatePlcStatus(
   setIndicator(lbl_hatch_switch_, msg->is_hatch_switch_start);
   setIndicator(lbl_ship_loading_, msg->is_ship_loading_start);
   setIndicator(lbl_ship_loading_stop_, msg->is_ship_loading_stop);
+  setIndicator(lbl_device_to_zero_, msg->is_device_to_zero);
 
   setIndicator(lbl_return_first_, msg->is_return_first_round);
   setIndicator(lbl_return_second_, msg->is_return_second_round);
@@ -218,8 +227,22 @@ void PlcStatusWidget::updatePlcStatus(
   lbl_hatch_info_->setText(
     QString("舱口数量/舱盖类型: %1 / %2")
       .arg(msg->hatch_count).arg(msg->hatch_cover_type));
+  const auto formatHatchValues = [](const auto& values) {
+    QStringList formatted;
+    formatted.reserve(static_cast<int>(values.size()));
+    for (const auto value : values) {
+      formatted << QString::number(value);
+    }
+    return formatted.join(", ");
+  };
+  lbl_hatch_work_plan_->setText(
+    QString("舱口作业计划: %1").arg(formatHatchValues(msg->hatch_work_plan)));
+  lbl_hatch_work_tech_->setText(
+    QString("舱口作业工艺: %1").arg(formatHatchValues(msg->hatch_work_tech)));
+  lbl_hatch_work_order_->setText(
+    QString("舱口作业顺序: %1").arg(formatHatchValues(msg->hatch_work_order)));
   lbl_load_direction_->setText(
-    QString("装舱方向: %1").arg(msg->load_direction == 1 ? "船头到船尾" : "船尾到船头"));
+    QString("装舱方向: %1").arg(msg->load_direction));
 }
 
 void PlcStatusWidget::clear()
@@ -236,6 +259,7 @@ void PlcStatusWidget::clear()
   setIndicator(lbl_hatch_switch_, false);
   setIndicator(lbl_ship_loading_, false);
   setIndicator(lbl_ship_loading_stop_, false);
+  setIndicator(lbl_device_to_zero_, false);
   setIndicator(lbl_return_first_, false);
   setIndicator(lbl_return_second_, false);
   setIndicator(lbl_move_next_point_, false);
@@ -259,6 +283,9 @@ void PlcStatusWidget::clear()
   lbl_task_instruction_->setText("任务指令: 暂无");
   lbl_ship_size_->setText("船舶长/宽: 暂无");
   lbl_hatch_info_->setText("舱口数量/舱盖类型: 暂无");
+  lbl_hatch_work_plan_->setText("舱口作业计划: 暂无");
+  lbl_hatch_work_tech_->setText("舱口作业工艺: 暂无");
+  lbl_hatch_work_order_->setText("舱口作业顺序: 暂无");
   lbl_load_direction_->setText("装舱方向: 暂无");
 }
 

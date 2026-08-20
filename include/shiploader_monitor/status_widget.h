@@ -11,6 +11,8 @@
 #include <km_custom_msgs/msg/ship_loader_target_pose.hpp>
 #include <km_custom_msgs/msg/ship_loader_speed.hpp>
 #include <km_custom_msgs/msg/work_flow_status.hpp>
+#include <km_custom_msgs/msg/device_enable.hpp>
+#include <km_custom_msgs/msg/device_safety_status.hpp>
 
 namespace shiploader_monitor {
 
@@ -29,6 +31,8 @@ public slots:
   void updateTargetPose(const km_custom_msgs::msg::ShipLoaderTargetPose::SharedPtr& msg);
   void updateSpeed(const km_custom_msgs::msg::ShipLoaderSpeed::SharedPtr& msg);
   void updateWorkflowStatus(const km_custom_msgs::msg::WorkFlowStatus::SharedPtr& msg);
+  void updateDeviceEnable(const km_custom_msgs::msg::DeviceEnable::SharedPtr& msg);
+  void updateDeviceSafetyStatus(const km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr& msg);
   void clear();
 
 private:
@@ -60,7 +64,22 @@ private:
   QLabel* lbl_wf_scan_;
   QLabel* lbl_wf_switch_;
   QLabel* lbl_wf_load_;
+  QLabel* lbl_wf_zero_;
   QLabel* lbl_wf_error_;
+
+  // ── 机构使能 / 安全状态 ──────────────────────────────────────
+  QLabel* lbl_enable_gantry_;
+  QLabel* lbl_enable_slewing_;
+  QLabel* lbl_enable_luffing_;
+  QLabel* lbl_enable_stretch_;
+  QLabel* lbl_safety_walking_slow_;
+  QLabel* lbl_safety_slewing_slow_;
+  QLabel* lbl_safety_luffing_slow_;
+  QLabel* lbl_safety_stretch_slow_;
+  QLabel* lbl_safety_walking_stop_;
+  QLabel* lbl_safety_slewing_stop_;
+  QLabel* lbl_safety_luffing_stop_;
+  QLabel* lbl_safety_stretch_stop_;
 };
 
 } // namespace shiploader_monitor

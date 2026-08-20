@@ -6,6 +6,7 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
+#include <QStringList>
 #include <km_custom_msgs/msg/plc_status.hpp>
 
 namespace shiploader_monitor {
@@ -44,6 +45,7 @@ private:
   QLabel* lbl_hatch_switch_;
   QLabel* lbl_ship_loading_;
   QLabel* lbl_ship_loading_stop_;
+  QLabel* lbl_device_to_zero_;
 
   // ── 作业控制 ─────────────────────────────────────────────────
   QLabel* lbl_return_first_;
@@ -74,6 +76,9 @@ private:
   QLabel* lbl_task_instruction_;
   QLabel* lbl_ship_size_;
   QLabel* lbl_hatch_info_;
+  QLabel* lbl_hatch_work_plan_;
+  QLabel* lbl_hatch_work_tech_;
+  QLabel* lbl_hatch_work_order_;
   QLabel* lbl_load_direction_;
 };
 

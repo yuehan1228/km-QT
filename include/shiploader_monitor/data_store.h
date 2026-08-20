@@ -15,6 +15,8 @@
 #include <km_custom_msgs/msg/ship_loader_speed.hpp>
 #include <km_custom_msgs/msg/ship_loader_target_pose.hpp>
 #include <km_custom_msgs/msg/hatch_position.hpp>
+#include <km_custom_msgs/msg/device_enable.hpp>
+#include <km_custom_msgs/msg/device_safety_status.hpp>
 
 namespace shiploader_monitor {
 
@@ -47,6 +49,8 @@ public:
   void updateShipLoaderSpeed(const km_custom_msgs::msg::ShipLoaderSpeed::SharedPtr& msg);
   void updateTargetPose(const km_custom_msgs::msg::ShipLoaderTargetPose::SharedPtr& msg);
   void updateHatchPosition(const km_custom_msgs::msg::HatchPosition::SharedPtr& msg);
+  void updateDeviceEnable(const km_custom_msgs::msg::DeviceEnable::SharedPtr& msg);
+  void updateDeviceSafetyStatus(const km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr& msg);
 
   // ── 最新数据访问 ──────────────────────────────────────────────
 
@@ -57,6 +61,8 @@ public:
   km_custom_msgs::msg::ShipLoaderSpeed::SharedPtr latestShipLoaderSpeed() const;
   km_custom_msgs::msg::ShipLoaderTargetPose::SharedPtr latestTargetPose() const;
   km_custom_msgs::msg::HatchPosition::SharedPtr latestHatchPosition() const;
+  km_custom_msgs::msg::DeviceEnable::SharedPtr latestDeviceEnable() const;
+  km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr latestDeviceSafetyStatus() const;
 
   /// 最近一次各 topic 数据的时间戳
   QDateTime lastUpdateTime(const QString& topic) const;
@@ -99,6 +105,12 @@ private:
 
   mutable QMutex hatch_mutex_;
   km_custom_msgs::msg::HatchPosition::SharedPtr latest_hatch_position_;
+
+  mutable QMutex device_enable_mutex_;
+  km_custom_msgs::msg::DeviceEnable::SharedPtr latest_device_enable_;
+
+  mutable QMutex device_safety_status_mutex_;
+  km_custom_msgs::msg::DeviceSafetyStatus::SharedPtr latest_device_safety_status_;
 
   // ── 更新时间 ─────────────────────────────────────────────────
   mutable QMutex update_time_mutex_;
