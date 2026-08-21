@@ -15,6 +15,19 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="mainLayout">
     <item>
+     <layout class="QHBoxLayout" name="controlLayout">
+      <item>
+       <spacer name="controlSpacer"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnStartAllNodes">
+        <property name="text"><string>一键启动所有节点</string></property>
+        <property name="toolTip"><string>打开终端并启动 km-shiploader 的 bringup 节点</string></property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex"><number>0</number></property>
 

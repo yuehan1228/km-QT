@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QVBoxLayout>
 #include <QDir>
+#include <QProcess>
 #include <QStandardPaths>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
@@ -275,6 +276,30 @@ void MainWindow::setupUI()
     onExportRequested(QString());
   });
   connect(ui_.btnClear, &QPushButton::clicked, this, &MainWindow::onClearHistory);
+  connect(ui_.btnStartAllNodes, &QPushButton::clicked, this, [this]() {
+    const QString workspace = QDir::homePath() + QStringLiteral("/workspace/shiploader");
+    if (!QDir(workspace).exists()) {
+      QMessageBox::warning(this, "启动失败",
+                           QString("找不到工作区：%1").arg(workspace));
+      return;
+    }
+
+    const QString command =
+      QStringLiteral("cd \"%1\" && "
+                     "source /opt/ros/humble/setup.bash && "
+                     "source install/setup.bash && "
+                     "ros2 launch bringup start.launch.py; "
+                     "exec bash").arg(workspace);
+    if (!QProcess::startDetached(QStringLiteral("gnome-terminal"),
+                                 {QStringLiteral("--"), QStringLiteral("bash"),
+                                  QStringLiteral("-lc"), command})) {
+      QMessageBox::warning(this, "启动失败", "无法打开 gnome-terminal");
+      return;
+    }
+
+    status_label_->setText("已打开终端，正在启动所有节点");
+    status_label_->setStyleSheet("color: #2E74B5; font-weight: bold;");
+  });
 
   // ── 定时器 ───────────────────────────────────────────────────
   refresh_timer_ = new QTimer(this);
